@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router();
 
 const userController = require('../controllers/userController')
+const mid = require('../middleware/mid')
 
 // User APIs....
 
@@ -9,9 +10,9 @@ router.post('/register',userController.createUser)
 
 router.post('/login',userController.loginUser)
 
-router.post('/user/:userId/profile',userController.getUser)
+router.get('/user/:userId/profile',mid.Authentication , mid.Authorisation , userController.getUser)
 
-router.post('/user/:userId/profile',userController.updateUser)
+router.put('/user/:userId/profile',mid.Authentication , mid.Authorisation , userController.updateUser)
 
 
 
