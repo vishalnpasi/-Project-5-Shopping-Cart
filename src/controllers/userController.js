@@ -110,7 +110,7 @@ const getUser = async function (req, res) {
         let userId = req.params.userId
 
         let userData = await userModel.findById(userId)
-        if (!userData) return res.status(400).send({ status: false, message: "User Data Not Found" })
+        if (!userData) return res.status(404).send({ status: false, message: "User Data Not Found" })
 
         return res.status(200).send({ status: true, message: "User profile details", data: userData })
 
@@ -125,7 +125,8 @@ const updateUser = async function (req, res) {
         if (!validation.isValidRequestBody(requestBody))
             return res.status(400).send({ status: false, message: "PLS provide some data to update" })
 
-        const { fname, lname, email, profileImage, phone, password, address } = requestBody
+        let { fname, lname, email, profileImage, phone, password, address } = requestBody
+        let userId = req.params.userId
 
         if (fname) {
             if (!validation.isValid(fname)) return res.status(400).send({ status: false, message: "fname is Mandatory" })
@@ -150,6 +151,7 @@ const updateUser = async function (req, res) {
         if (password) {
             if (!validation.isValid(password)) return res.status(400).send({ status: false, message: "password is Mandatory" })
             if (!validation.isValidPassword(password)) return res.status(400).send({ status: false, message: 'please enter a valid password' })
+            requestBody.password = await bcrypt.hash(password,10)
         }
         if (address) {
             if (typeof (address) !== 'object') {
@@ -157,22 +159,36 @@ const updateUser = async function (req, res) {
                     address = JSON.parse(address)
                 }
                 catch (err) {
-                    return res.status(400).send({ status: false, message: "address type must be Object" })
+                    return res.status(400).send({ status: false,mgs:err.message, message: "address type must be Object catec" })
                 }
             }
             if (typeof (address) !== 'object') return res.status(400).send({ status: false, message: "address type must be Object" })
 
+            let userData = await userModel.findById(userId)
+            let oldAddress = userData.address
             if (address.shipping) {
-                if (address.shipping.pincode) {
+                const {street,city,pincode}=address.shipping
+                if(street) oldAddress.shipping.street = street
+                if(city) oldAddress.shipping.city = city
+
+                if (pincode) {
                     if (!validation.isvalidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
+                    oldAddress.shipping.pincode = pincode
                 }
+                
             }
             if (address.billing) {
-                if (address.billing.pincode) {
+                const {street,city,pincode}=address.billing
+
+                if(street) oldAddress.billing.street = street
+                if(city) oldAddress.billing.city = city
+                if (pincode) {
                     if (!validation.isvalidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: 'address billing pincode is mandatory of 6 digit' })
+                    oldAddress.billing.pincode = pincode
                 }
+                
             }
-            requestBody.address = address
+            requestBody.address = oldAddress
         }
         if (profileImage) {
             let checkUrlByaxios = await axios.get(profileImage)
@@ -180,7 +196,6 @@ const updateUser = async function (req, res) {
                 .catch((err) => false)
             if (!checkUrlByaxios) return res.status(400).send({ status: false, message: "Not A Valid URL , Plz Provide valid ProfileImage URL." })
         }
-        let userId = req.params.userId
         let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:requestBody},{new:true})
 
         return res.status(200).send({ status: true, message: "User Updated Successfully", data: updatedData })

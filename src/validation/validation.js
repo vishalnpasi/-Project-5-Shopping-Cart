@@ -9,7 +9,7 @@ const isValid = function (value) {
 }
 const isValidString = function (value) {
     let regex = /^[a-zA-Z]+([\s][a-zA-Z]+)*$/
-    return regex.test(value)//Manashi Bauri
+    return regex.test(value)
 }
 const isValidRequestBody = function (reqBody) {
     return Object.keys(reqBody).length > 0
@@ -26,7 +26,7 @@ const mobileValidation = function (phone) {
 }
 
 const isValidPassword = function (password) {
-    let regexforpassword = /^(?=.*\d)(?=.*[a-z]).{8,15}$/
+    let regexforpassword = /^(?=.*[a-z]).{8,15}$/
     return regexforpassword.test(password)
 }
 const TIME = function (releasedAt) {
