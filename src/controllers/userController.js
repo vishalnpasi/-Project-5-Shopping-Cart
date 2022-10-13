@@ -122,11 +122,11 @@ const getUser = async function (req, res) {
 const updateUser = async function (req, res) {
     try {
         const requestBody = req.body
-        if (!validation.isValidRequestBody(requestBody))
+        let userId = req.params.userId
+        if (!validation.isValidRequestBody(requestBody) && !req.files)
             return res.status(400).send({ status: false, message: "PLS provide some data to update" })
 
         let { fname, lname, email, profileImage, phone, password, address } = requestBody
-        let userId = req.params.userId
 
         if (fname) {
             if (!validation.isValid(fname)) return res.status(400).send({ status: false, message: "fname is Mandatory" })
@@ -172,7 +172,7 @@ const updateUser = async function (req, res) {
                 if(city) oldAddress.shipping.city = city
 
                 if (pincode) {
-                    if (!validation.isvalidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
+                    if (!validation.isvalidPincode(pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
                     oldAddress.shipping.pincode = pincode
                 }
                 
@@ -183,20 +183,18 @@ const updateUser = async function (req, res) {
                 if(street) oldAddress.billing.street = street
                 if(city) oldAddress.billing.city = city
                 if (pincode) {
-                    if (!validation.isvalidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: 'address billing pincode is mandatory of 6 digit' })
+                    if (!validation.isvalidPincode(pincode)) return res.status(400).send({ status: false, message: 'address billing pincode is mandatory of 6 digit' })
                     oldAddress.billing.pincode = pincode
                 }
                 
             }
             requestBody.address = oldAddress
-        }
-        if (profileImage) {
-            let checkUrlByaxios = await axios.get(profileImage)
-                .then(() => true)
-                .catch((err) => false)
-            if (!checkUrlByaxios) return res.status(400).send({ status: false, message: "Not A Valid URL , Plz Provide valid ProfileImage URL." })
-        }
-        let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:requestBody},{new:true})
+        } 
+        if(req.files.length>0)
+                requestBody.profileImage = await aws.uploadFile(req.files[0])
+        let updatedData = await userModel.findByIdAndUpdate({_id:userId},{$set:requestBody},{new:true})
+
+        if(!updatedData) return res.status(404).send({ status: false, message: 'User Data Not Found' })
 
         return res.status(200).send({ status: true, message: "User Updated Successfully", data: updatedData })
     }
@@ -204,5 +202,4 @@ const updateUser = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
-
 module.exports = { createUser, loginUser, getUser, updateUser }

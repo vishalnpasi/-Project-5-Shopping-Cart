@@ -222,7 +222,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 > **_NOTE:_** For price filter request could contain both or any one of the keys. For example the query in the request could look like { priceGreaterThan: 500, priceLessThan: 2000 } or just { priceLessThan: 1000 } )
     
   - __Sort__
-    - Sorted by product price in ascending or descending. The key value pair will look like {priceSort : 1} or {priceSort : -1}
+    -  by prodSorteduct price in ascending or descending. The key value pair will look like {priceSort : 1} or {priceSort : -1}
   _eg_ /products?size=XL&name=Nit%20grit
 - __Response format__
   - _**On success**_ - Return HTTP status 200. Also return the product documents. The response should be a JSON object like [this](#successful-response-structure)

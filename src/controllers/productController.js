@@ -7,6 +7,7 @@ const createProduct = async function (req, res) {
         let requestBody = req.body
         if (!validation.isValidRequestBody(requestBody))
             return res.status(400).send({ status: false, message: "PLS provide some data to update" })
+
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = requestBody
 
         if (!validation.isValid(title)) return res.status(400).send({ status: false, message: "Title is Mandatory" })
@@ -19,28 +20,27 @@ const createProduct = async function (req, res) {
         price = Number(price)
         if (isNaN(price)) return res.status(400).send({ status: false, message: "Price Should be in Number" })
 
-        if (currencyId) {//return res.status(400).send({ status: false, message: "CurrencyId is Mandatory" })
+        if (currencyId) {
             if (currencyId !== "INR" && currencyId !== 'USD') return res.status(400).send({ status: false, message: "CurrencyId Should be in INR " })
         }
-        if (currencyFormat) {// return res.status(400).send({ status: false, message: "CurrencyFormat is Mandatory" })
+        if (currencyFormat) {
             if (currencyFormat !== "₹") return res.status(400).send({ status: false, message: "CurrencyFormat Should be in.. ₹ " }) // CTRL + ALT + 4($)..
         }
         if (isFreeShipping) {
-            if (typeof isFreeShipping !== 'boolean')
+            if (isFreeShipping !== 'true' && isFreeShipping !=='false')
                 return res.status(400).send({ status: false, message: "isFreeShipping type Should be Boolean" })
         }
         if (style) {
             if (!validation.isValid(style))
                 return res.status(400).send({ status: false, message: "style type is should be in String" })
         }
-        if (availableSizes) {
-
+        if (availableSizes) {   // accept format , XS , "XS" , ["XS","L"]
             let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-            if (enumArr.find(value => value === availableSizes))
+            if (enumArr.find(value => value === availableSizes))    // XS
                 requestBody.availableSizes = [availableSizes]
-            else {      
-                try {
-                    availableSizes = JSON.parse(availableSizes) // XS , "XS"
+            else { 
+                try { //for invalid enumValue
+                    availableSizes = JSON.parse(availableSizes) //parsing "XS" , ["X","L"]
                 } catch (err) {
                     return res.status(400).send({ status: false, message: "Available size is Invalid" })
                 }
@@ -77,13 +77,51 @@ const createProduct = async function (req, res) {
     }
 }
 
-const getAllProduct = async function (req, res) {
-    // try{
-    //     let {size , name , priceGreaterThan , priceLessThan } = req.
 
-    // }catch (err) {
-    //     return res.status(500).send({ status: false, message: err.message })
-    // }
+
+const getAllProduct = async function (req, res) {
+    try{
+        let findData = {}
+        let {size , name , priceGreaterThan , priceLessThan ,priceSort} = req.query
+        
+        if(size) findData.availableSizes = size;
+        if(name) findData.title = {$regex:name}
+        if(priceLessThan){
+            priceLessThan = Number(priceLessThan)
+            if (isNaN(priceLessThan)) return res.status(400).send({ status: false, message: "priceLessThan type Should be Number" })
+            findData.price = { $lt:priceLessThan }
+        }
+        if(priceGreaterThan){
+            priceGreaterThan = Number(priceGreaterThan)
+            if (isNaN(priceGreaterThan)) return res.status(400).send({ status: false, message: "priceGreaterThan type Should be Number" })
+            findData.price = {$gt:priceGreaterThan}
+        }
+        if(priceLessThan && priceGreaterThan) 
+            findData.price = { $lt:priceLessThan , $gt:priceGreaterThan }
+
+        findData.isDeleted = false
+        let productDetails = await productModel.find(findData)  // 1st option to find 2nd option to updata(structur also)
+        // let productDetails = await productModel.aggregate([
+        //     {
+        //         $match:findData    // we can give multiple object to find doc
+        //     },
+        //     {
+        //         $match:findData
+        //     }
+        // ])
+        if(priceSort){
+            if(priceSort !=='1' && priceSort!=='-1') 
+                return res.status(400).send({ status: false, message: "priceSort type Should be Number like 1 for ascending , -1 for Descending" })    
+            if(priceSort === '1')
+                productDetails.sort((a,b) =>{return a.price - b.price})
+            if(priceSort === '-1')
+                productDetails.sort((a,b) =>{return b.price - a.price})
+        }
+        return res.status(200).send({ status: true, message: "Success", data:productDetails })
+
+    }catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 
 const getProductById = async function (req, res) {
@@ -93,11 +131,11 @@ const getProductById = async function (req, res) {
 
         if (!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "ProductId is Invalid" })
 
-        let userData = await productModel.findOne({ _id: productId, isDeleted: false })
+        let productDetails = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!userData) return res.status(404).send({ status: false, message: "Product Data Not Found" })
+        if (!productDetails) return res.status(404).send({ status: false, message: "Product Data Not Found" })
 
-        return res.status(200).send({ status: true, message: "Success", data: userData })
+        return res.status(200).send({ status: true, message: "Success", data:productDetails })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
