@@ -156,10 +156,10 @@ const updateUser = async function (req, res) {
         if (address) {
             if (typeof (address) !== 'object') {
                 try {
-                    address = JSON.parse(address)
+                    address = JSON.parse(address) // it's also convert string or string of object to object...
                 }
                 catch (err) {
-                    return res.status(400).send({ status: false,mgs:err.message, message: "address type must be Object catec" })
+                    return res.status(400).send({ status: false, message: "address type must be Object" })
                 }
             }
             if (typeof (address) !== 'object') return res.status(400).send({ status: false, message: "address type must be Object" })
