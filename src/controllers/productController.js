@@ -140,7 +140,7 @@ const getProductById = async function (req, res) {
 const updateProduct = async function (req, res) {
     try {
         let productId = req.params.productId
-        if(!productId) return res.status(400).send({ status: false, message: "ProductId not found , pls give ProductId on params" })
+        if(!productId) return res.status(404).send({ status: false, message: "ProductId not found , pls give ProductId on params" })
         if(!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "ProductId is Invalid" })
 
         let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
@@ -172,7 +172,7 @@ const updateProduct = async function (req, res) {
         }
         if (currencyFormat) {
             if (currencyFormat !== "₹") return res.status(400).send({ status: false, message: "currencyFormat should be .... ₹ " })
-            updateData.currencyId = currencyId
+            updateData.currencyFormat = currencyFormat
         }
         if (isFreeShipping) {
             if (isFreeShipping !== 'true' && isFreeShipping !== 'false') return res.status(400).send({ status: false, message: "isFreeShipping type should be in boolean " })
@@ -221,7 +221,7 @@ const updateProduct = async function (req, res) {
             }
         }
         let updateProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData , { new: true })
-        if (!updateProduct) return res.status(400).send({ status: false, message: "product not found" })
+        if (!updateProduct) return res.status(404).send({ status: false, message: "product not found" })
 
         return res.status(200).send({ status: true, message: "Success", data: updateProduct })
 

@@ -101,7 +101,7 @@ const loginUser = async function (req, res) {
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: userData._id, token: token } })
 
     } catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
+       return res.status(500).send({ status: false, msg: err.message })
     }
 }
 

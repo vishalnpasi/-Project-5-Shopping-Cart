@@ -3,7 +3,10 @@ const router = express.Router();
 
 const userController = require('../controllers/userController')
 const productController = require('../controllers/productController')
+const cartController = require('../controllers/cartController')
+const orderController = require('../controllers/orderController')
 const mid = require('../middleware/mid')
+
 
 //.......................................... User APIs.............................................................
 
@@ -27,8 +30,23 @@ router.put('/products/:productId',productController.updateProduct)
 
 router.delete('/products/:productId',productController.deleteProduct)
 
-//
+//..........................................Cart APIs...........................................
 
+router.post('/users/:userId/cart',cartController.createCart )
+
+router.put('/users/:userId/cart',cartController.updateCart )
+
+router.get('/users/:userId/cart',cartController.getCart )
+
+router.delete('/users/:userId/cart',cartController.deleteCart )
+
+//..........................................Order APIs............................................
+
+router.post('/users/:userId/orders',orderController.createOrder)
+
+router.put('/users/:userId/orders',orderController.updateOrder)
+
+//..........................................APIs Ended..............................................
 
 //for Invalid Params
 router.use(function(req,res){
