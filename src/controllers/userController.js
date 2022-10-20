@@ -33,9 +33,9 @@ const createUser = async function (req, res) {
         if (phoneNumberExist) return res.status(400).send({ status: false, message: "phone Number  Already Exist" })
 
         if (!validation.isValid(password)) return res.status(400).send({ status: false, message: "password is Mandatory" })
-        if (!validation.isValidPassword(password)) return res.status(400).send({ status: false, message: 'please enter a valid password' })
+        if (!validation.isValidPassword(password)) return res.status(400).send({ status: false, message: 'please enter a valid password length should be min 8 and max 15' })
 
-        if (!address) return res.status(400).send({ status: false, message: "address is Mandatory" })
+        if (!address) return res.status(400).send({ status: false, message: "Address is Mandatory" })
 
         if (typeof (address) !== 'object') {
             try {
@@ -47,17 +47,17 @@ const createUser = async function (req, res) {
         }
         if (typeof (address) !== 'object') return res.status(400).send({ status: false, message: "address type must be Object" })
 
-        if (!address.shipping) return res.status(400).send({ status: false, message: "Address shipping is Mandatory" })
-        if (!address.shipping.street) return res.status(400).send({ status: false, message: "Address shipping street is Mandatory" })
-        if (!address.shipping.city) return res.status(400).send({ status: false, message: "Address shipping city is Mandatory" })
-        if (!address.shipping.pincode) return res.status(400).send({ status: false, message: "Address shipping pincode is Mandatory" })
-        if (!validation.isvalidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
+        if (!address.shipping) return res.status(400).send({ status: false, message: "Shipping Address is Mandatory" })
+        if (!address.shipping.street) return res.status(400).send({ status: false, message: "Shipping street is Mandatory" })
+        if (!address.shipping.city) return res.status(400).send({ status: false, message: "Shipping city is Mandatory" })
+        if (!address.shipping.pincode) return res.status(400).send({ status: false, message: "Shipping pincode is Mandatory" })
+        if (!validation.isvalidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: 'Shipping pincode is mandatory of 6 digit' })
 
-        if (!address.billing) return res.status(400).send({ status: false, message: "Address billing is Mandatory" })
-        if (!address.billing.street) return res.status(400).send({ status: false, message: "Address billing street is Mandatory" })
-        if (!address.billing.city) return res.status(400).send({ status: false, message: "Address billing city is Mandatory" })
-        if (!address.billing.pincode) return res.status(400).send({ status: false, message: "Address billing pincode is Mandatory" })
-        if (!validation.isvalidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: 'address billing pincode is mandatory of 6 digit' })
+        if (!address.billing) return res.status(400).send({ status: false, message: "Billing Address is Mandatory" })
+        if (!address.billing.street) return res.status(400).send({ status: false, message: "billing street is Mandatory" })
+        if (!address.billing.city) return res.status(400).send({ status: false, message: "billing city is Mandatory" })
+        if (!address.billing.pincode) return res.status(400).send({ status: false, message: "billing pincode is Mandatory" })
+        if (!validation.isvalidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: 'billing pincode is mandatory of 6 digit' })
         requestBody.address = address
 
         let files = req.files

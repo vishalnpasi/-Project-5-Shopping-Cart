@@ -42,9 +42,9 @@ router.delete('/users/:userId/cart' , mid.Authentication , mid.Authorisation ,ca
 
 //..........................................Order APIs............................................
 
-router.post('/users/:userId/orders',orderController.createOrder)
+router.post('/users/:userId/orders', mid.Authentication , mid.Authorisation ,orderController.createOrder)
 
-router.put('/users/:userId/orders',orderController.updateOrder)
+router.put('/users/:userId/orders', mid.Authentication , mid.Authorisation ,orderController.updateOrder)
 
 //..........................................APIs Ended..............................................
 

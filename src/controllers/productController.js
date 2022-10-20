@@ -104,6 +104,8 @@ const getAllProduct = async function (req, res) {
         findData.isDeleted = false
         let productDetails = await productModel.find(findData)
 
+        if(productDetails.length===0)
+            return res.status(404).send({ status: false, message: "Data Not Found by given filter"})
         if (priceSort) {
             if (priceSort !== '1' && priceSort !== '-1')
                 return res.status(400).send({ status: false, message: "priceSort type Should be Number like 1 for ascending , -1 for Descending" })

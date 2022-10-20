@@ -5,7 +5,7 @@ const userModel = require('../models/userModel')
 const Authentication = async function (req, res, next) {
     try {
         let token = req.headers["authorization"]
-
+        
         if (!token) return res.status(401).send({ status: false, message: "Token is Not Present" })
         token = token.split(" ")
         token = token[1]
@@ -31,9 +31,9 @@ const Authorisation = async function (req, res, next) {
             return res.status(400).send({ status: false, message: "UserId is inValid" })
 
         let userData = await userModel.findById(userId)
-        if (!userData) return res.status(404).send({ status: false, message: "User Data Not Found" })
+        if (!userData) return res.status(404).send({ status: false, message: "User Does Not Exist" })
     
-        if ( req["authorization"].userId != userId) return res.status(403).send({ status: false, message: "Authorisation failed" })
+        if ( req["authorization"].userId != userId) return res.status(403).send({ status: false, message: "Authorisation failed..(the user are not Authorized )" })
         next()
 
     } catch (err) {
@@ -42,3 +42,4 @@ const Authorisation = async function (req, res, next) {
 }
 
 module.exports = { Authentication, Authorisation }
+
