@@ -82,8 +82,10 @@ const updateOrder = async function(req,res){
             await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status,isDeleted :true ,deletedAt : Date.now()}})
             return res.status(200).send({ status: true, message: "Order Canceled Successfull"})
         }
+
         let updatedOrder = await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status}},{new:true})
                                             .populate('items.productId',{title:1,price:1,productImage:1})
+                                            
         delete updatedOrder._doc.isDeleted
         delete updatedOrder._doc.deletedAt
         delete updatedOrder._doc.__v
