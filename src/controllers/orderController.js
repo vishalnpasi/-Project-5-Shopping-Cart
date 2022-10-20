@@ -8,7 +8,7 @@ const createOrder = async function(req,res){
 
         if(!validation.isValidRequestBody(req.body))
             return res.status(400).send({ status: false, message: "PLS provide some data to update" })
-        let {cartId ,cancellable} = req.body
+        let {cartId ,cancellable , status} = req.body
         if(!cartId) return res.status(400).send({ status: false, message: "CartId is Mandatory" })
 
         let cartDetails = await cartModel.findOne({ _id: cartId , userId:userId})
@@ -73,19 +73,18 @@ const updateOrder = async function(req,res){
         if(orderDetails.status === status)
             return res.status(400).send({ status: false,message: "Order Already "+status })
 
-        if(orderDetails.status === 'canceled')
-            return res.status(400).send({ status: false,message: "Order is Canceled Already" })
+        if(orderDetails.status !== 'pending')
+            return res.status(400).send({ status: false,message: `Order can't be ${status}...because that have ${orderDetails.status}` })
 
+        let updateData ={status:status}
         if(status === 'canceled'){
             if(!orderDetails.cancellable)
                 return res.status(400).send({ status: false,message: "Can't Cancel the Order.. this order are not Cancelable" })
-            await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status,isDeleted :true ,deletedAt : Date.now()}})
-            return res.status(200).send({ status: true, message: "Order Canceled Successfull"})
+            updateData.isDeleted = true
+            updateData.deletedAt = Date.now()
         }
-
-        let updatedOrder = await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status}},{new:true})
+        let updatedOrder = await orderModel.findOneAndUpdate({_id:orderId},{$set:updateData},{new:true})
                                             .populate('items.productId',{title:1,price:1,productImage:1})
-                                            
         delete updatedOrder._doc.isDeleted
         delete updatedOrder._doc.deletedAt
         delete updatedOrder._doc.__v
