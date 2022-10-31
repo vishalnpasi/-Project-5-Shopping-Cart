@@ -173,7 +173,7 @@ const updateUser = async function (req, res) {
 
                 if (pincode) {
                     if (!validation.isvalidPincode(pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
-                    oldAddress.shipping.pincode = dpincoe
+                    oldAddress.shipping.pincode = pincode
                 }
                 
             }
