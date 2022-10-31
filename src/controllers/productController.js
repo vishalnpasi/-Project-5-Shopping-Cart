@@ -2,7 +2,6 @@ const validation = require('../validation/validation')
 const aws = require('../aws/aws')
 const productModel = require('../models/productModel')
 const moment = require('moment')
-// const { update } = require('../models/productModel')
 
 const createProduct = async function (req, res) {
     try {
@@ -142,7 +141,7 @@ const getProductById = async function (req, res) {
 const updateProduct = async function (req, res) {
     try {
         let productId = req.params.productId
-        if(!productId) return res.status(404).send({ status: false, message: "ProductId not found , pls give ProductId on params" })
+        if(!productId) return res.status(400).send({ status: false, message: "ProductId is Mandatory" })
         if(!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "ProductId is Invalid" })
 
         let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })

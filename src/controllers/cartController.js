@@ -48,7 +48,7 @@ const createCart = async function (req, res) {
             return res.status(201).send({ status: true, message: "Success", data: savedCart })
         }
         let findCart = await cartModel.findOne({ userId: userId })
-        if (findCart) return res.status(400).send({ status: false, message: "Cart Already Created..." })
+        if (findCart) return res.status(409).send({ status: false, message: "Cart Already Created..." })
         cartData.userId = userId
         cartData.items = { productId: productId, quantity: 1}
         cartData.totalPrice = productDetails.price

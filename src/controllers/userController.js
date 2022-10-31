@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const validation = require('../validation/validation')
 const aws = require('../aws/aws')
 const jwt = require('jsonwebtoken')
-const axios = require('axios')
+
 const userModel = require('../models/userModel')
 
 const createUser = async function (req, res) {
@@ -121,7 +121,7 @@ const getUser = async function (req, res) {
 }
 const updateUser = async function (req, res) {
     try {
-        const requestBody = req.body
+        let requestBody = req.body
         let userId = req.params.userId
         if (!validation.isValidRequestBody(requestBody) && !req.files)
             return res.status(400).send({ status: false, message: "PLS provide some data to update" })
@@ -173,7 +173,7 @@ const updateUser = async function (req, res) {
 
                 if (pincode) {
                     if (!validation.isvalidPincode(pincode)) return res.status(400).send({ status: false, message: 'address shipping pincode is mandatory of 6 digit' })
-                    oldAddress.shipping.pincode = pincode
+                    oldAddress.shipping.pincode = dpincoe
                 }
                 
             }
@@ -192,6 +192,7 @@ const updateUser = async function (req, res) {
         } 
         if(req.files.length>0)
                 requestBody.profileImage = await aws.uploadFile(req.files[0])
+                
         let updatedData = await userModel.findByIdAndUpdate({_id:userId},{$set:requestBody},{new:true})
 
         if(!updatedData) return res.status(404).send({ status: false, message: 'User Data Not Found' })
